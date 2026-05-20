@@ -1,5 +1,7 @@
 # 🛍️ İkinci El Websitesi
 
+![İlan Listesi ve İkinci El Dashboard](screenshots/dashboard.png)
+
 Kullanıcıların ikinci el ürün ilan verebildiği, mesajlaşabildiği ve ürün arayabildiği tam kapsamlı bir marketplace platformu.
 
 ## 🚀 Özellikler
