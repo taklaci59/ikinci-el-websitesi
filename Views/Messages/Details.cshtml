@@ -1,0 +1,64 @@
+@model List<ikincelwebsitesi.Models.Message>
+@{
+    ViewData["Title"] = "Konuşma";
+    var currentUserId = ViewBag.CurrentUserId as string;
+    var otherUser = ViewBag.OtherUser as ikincelwebsitesi.Models.ApplicationUser;
+    var listing = ViewBag.Listing as ikincelwebsitesi.Models.Listing;
+}
+
+<div class="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col">
+    <!-- Chat Header -->
+    <div class="bg-base-100 shadow-md p-4 rounded-t-xl flex justify-between items-center border-b">
+        <div class="flex items-center gap-4">
+            <a asp-action="Index" class="btn btn-ghost btn-sm btn-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </a>
+            <div>
+                <h2 class="font-bold text-lg">@otherUser?.FullName</h2>
+                <p class="text-xs text-base-content/60">İlan: @listing?.Title</p>
+            </div>
+        </div>
+        <a asp-controller="Listings" asp-action="Details" asp-route-id="@listing?.Id" class="btn btn-outline btn-sm">İlanı Gör</a>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="flex-grow overflow-y-auto p-4 bg-base-200/50 space-y-4" id="chat-container">
+        @foreach (var msg in Model)
+        {
+            var isMe = msg.SenderId == currentUserId;
+            <div class="chat @(isMe ? "chat-end" : "chat-start")">
+                <div class="chat-header text-xs opacity-50 mb-1">
+                    @msg.Sender?.FullName
+                    <time class="text-xs opacity-50 ml-1">@msg.SentAt.ToString("HH:mm")</time>
+                </div>
+                <div class="chat-bubble @(isMe ? "chat-bubble-primary" : "chat-bubble-secondary shadow-sm")">
+                    @msg.Content
+                </div>
+                <div class="chat-footer opacity-50 text-[10px] mt-1">
+                    @if (isMe)
+                    {
+                        @(msg.IsRead ? "Görüldü" : "İletildi")
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Chat Input -->
+    <div class="bg-base-100 p-4 rounded-b-xl border-t">
+        <form asp-action="Send" method="post" class="flex gap-2">
+            <input type="hidden" name="listingId" value="@listing?.Id" />
+            <input type="hidden" name="receiverId" value="@otherUser?.Id" />
+            <input type="text" name="content" placeholder="Mesajınızı buraya yazın..." class="input input-bordered flex-grow" required autocomplete="off" />
+            <button type="submit" class="btn btn-primary px-8">Gönder</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Scroll to bottom on load
+        const container = document.getElementById('chat-container');
+        container.scrollTop = container.scrollHeight;
+    </script>
+}

@@ -1,0 +1,46 @@
+@model List<ikincelwebsitesi.Models.Message>
+
+@{
+    ViewData["Title"] = "Gönderilen Mesajlar";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Mesajlarım</h1>
+        <div class="flex gap-2">
+            <a asp-action="Index" class="btn btn-sm btn-ghost">Gelen Kutusu</a>
+            <a asp-action="Sent" class="btn btn-sm btn-primary">Gönderilenler</a>
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body text-center py-12">
+                <p class="text-xl text-base-content/50">Henüz gönderilmiş bir mesajınız yok.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="grid gap-4">
+            @foreach (var msg in Model)
+            {
+                <a asp-action="Details" asp-route-id="@msg.Id" class="card bg-base-100 shadow hover:shadow-md transition-all cursor-pointer">
+                    <div class="card-body p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold">Alıcı: @msg.Receiver?.FullName</h3>
+                                <p class="text-sm text-base-content/70">İlan: @msg.Listing?.Title</p>
+                                <p class="text-sm mt-2 truncate max-w-lg">@msg.Content</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-base-content/50">@msg.SentAt.ToString("dd.MM.yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

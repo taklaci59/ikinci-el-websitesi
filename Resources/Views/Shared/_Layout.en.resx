@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Göz At" xml:space="preserve"><value>Browse</value></data>
+  <data name="Sat" xml:space="preserve"><value>Sell</value></data>
+  <data name="Mesajlar" xml:space="preserve"><value>Messages</value></data>
+  <data name="Kaydedilenler" xml:space="preserve"><value>Saved</value></data>
+</root>

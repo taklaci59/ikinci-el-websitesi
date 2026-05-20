@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var stats = ViewBag.Stats as Dictionary<string, int>;
+}
+
+<div class="mb-8 flex justify-between items-center">
+    <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+    <div class="flex gap-2">
+        <a asp-action="ExportExcel" class="btn btn-success text-white">Excel İndir</a>
+        <a asp-action="ExportPdf" class="btn btn-error text-white">PDF İndir</a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Kategori Dağılımı</h2>
+            <div class="h-64">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Yönetim Araçları</h2>
+            <div class="flex flex-col gap-4 mt-4">
+                <a asp-action="ManageListings" class="btn btn-primary w-full text-left justify-start">İlanları Yönet (God Mode)</a>
+                <a asp-controller="Listings" asp-action="Create" class="btn btn-outline w-full text-left justify-start">Yeni İlan Ekle</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('categoryChart');
+        
+        const data = {
+            labels: [@Html.Raw(string.Join(",", stats.Keys.Select(k => $"'{k}'")))],
+            datasets: [{
+                label: 'İlan Sayısı',
+                data: [@string.Join(",", stats.Values)],
+                backgroundColor: [
+                    '#4ade80',
+                    '#60a5fa',
+                    '#f472b6',
+                    '#fbbf24',
+                    '#a78bfa'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+}

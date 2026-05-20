@@ -1,0 +1,89 @@
+@model ikincelwebsitesi.Models.ViewModels.PagedList<ikincelwebsitesi.Models.Listing>
+
+@{
+    ViewData["Title"] = "İlan Yönetimi";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-3xl font-bold">İlan Yönetimi (God Mode)</h1>
+    <a asp-action="Dashboard" class="btn btn-ghost">Geri Dön</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body p-0">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Görsel</th>
+                        <th>Başlık</th>
+                        <th>Fiyat</th>
+                        <th>Kategori</th>
+                        <th>Kullanıcı</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <div class="avatar">
+                                        <div class="w-12 h-12 rounded">
+                                            <img src="@item.ImageUrl" alt="@item.Title" />
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-xs text-base-content/50">Yok</span>
+                                }
+                            </td>
+                            <td class="font-semibold truncate max-w-[200px]" title="@item.Title">@item.Title</td>
+                            <td>@item.Price.ToString("C")</td>
+                            <td><div class="badge badge-outline">@item.Category?.Name</div></td>
+                            <td class="text-xs">@(item.User?.FullName ?? item.User?.Email)</td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a asp-controller="Listings" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-xs btn-warning">Düzenle</a>
+                                    <form asp-action="DeleteListing" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bu ilanı kalıcı olarak silmek istediğinize emin misiniz?');">
+                                        <button type="submit" class="btn btn-xs btn-error">Sil</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        @if (Model.TotalPages > 1)
+        {
+            <div class="join m-4 flex justify-center">
+                @if (Model.HasPreviousPage)
+                {
+                    <a asp-action="ManageListings" asp-route-page="@(Model.PageNumber - 1)" class="join-item btn btn-sm">«</a>
+                }
+                else
+                {
+                    <button class="join-item btn btn-sm btn-disabled">«</button>
+                }
+
+                <button class="join-item btn btn-sm">Sayfa @Model.PageNumber / @Model.TotalPages</button>
+
+                @if (Model.HasNextPage)
+                {
+                    <a asp-action="ManageListings" asp-route-page="@(Model.PageNumber + 1)" class="join-item btn btn-sm">»</a>
+                }
+                else
+                {
+                    <button class="join-item btn btn-sm btn-disabled">»</button>
+                }
+            </div>
+        }
+    </div>
+</div>

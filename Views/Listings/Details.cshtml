@@ -1,0 +1,83 @@
+@using System.Security.Claims
+@model ikincelwebsitesi.Models.Listing
+
+@{
+    ViewData["Title"] = Model.Title;
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var isAdmin = User.IsInRole("Admin");
+    var isOwner = Model.UserId == currentUserId;
+}
+
+<div class="card lg:card-side bg-base-100 shadow-xl max-w-5xl mx-auto">
+    <figure class="lg:w-1/2 bg-base-200">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Title" class="object-cover w-full h-full min-h-[300px]" />
+        }
+        else
+        {
+            <div class="flex items-center justify-center min-h-[300px] text-base-content/50">Görsel Yok</div>
+        }
+    </figure>
+    <div class="card-body lg:w-1/2">
+        <div class="badge badge-primary badge-outline mb-2">@Model.Category?.Name</div>
+        <h2 class="card-title text-3xl font-bold mb-2">@Model.Title</h2>
+        <p class="text-4xl font-extrabold text-primary mb-6">@Model.Price.ToString("C")</p>
+        
+        <div class="divider">Açıklama</div>
+        <p class="whitespace-pre-line text-base-content/80">@Model.Description</p>
+        
+        <div class="divider">Satıcı Bilgileri</div>
+        <p class="font-medium">@(Model.User?.FullName ?? Model.User?.Email)</p>
+        <p class="text-sm text-base-content/60">İlan Tarihi: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+
+        <div class="card-actions justify-end mt-8">
+            <a asp-action="Index" class="btn btn-ghost">Geri Dön</a>
+            
+            @if (isOwner || isAdmin)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Düzenle</a>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Silmek istediğinize emin misiniz?');" class="inline">
+                    <button type="submit" class="btn btn-error">Sil</button>
+                </form>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
+            {
+                <button onclick="message_modal.showModal()" class="btn btn-primary">Satıcıya Mesaj Gönder</button>
+                
+                @if (Context.Request.Query["messageSent"] == "true")
+                {
+                    <div class="alert alert-success mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Mesajınız başarıyla gönderildi!</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-primary">Mesaj Göndermek İçin Giriş Yap</a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Message Modal -->
+<dialog id="message_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Mesaj Gönder</h3>
+    <p class="py-2 text-sm text-base-content/70">İlan: @Model.Title</p>
+    <form asp-controller="Messages" asp-action="Send" method="post">
+        <input type="hidden" name="listingId" value="@Model.Id" />
+        <div class="form-control">
+            <textarea name="content" class="textarea textarea-bordered h-32" placeholder="Mesajınızı buraya yazın..." required></textarea>
+        </div>
+        <div class="modal-action">
+            <button type="button" onclick="message_modal.close()" class="btn">İptal</button>
+            <button type="submit" class="btn btn-primary">Gönder</button>
+        </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

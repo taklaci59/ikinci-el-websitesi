@@ -1,0 +1,59 @@
+@using System.Security.Claims
+@model List<ikincelwebsitesi.Models.Message>
+
+@{
+    ViewData["Title"] = "Mesajlarım";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Konuşmalarım</h1>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body text-center py-12">
+                <p class="text-xl text-base-content/50">Henüz bir mesajınız yok.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="grid gap-4">
+            @foreach (var msg in Model)
+            {
+                var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+                var isMe = msg.SenderId == currentUserId;
+                var otherUser = isMe ? msg.Receiver : msg.Sender;
+                var hasUnread = !isMe && !msg.IsRead;
+
+                <a asp-action="Details" asp-route-id="@msg.Id" class="card bg-base-100 shadow hover:shadow-md transition-all cursor-pointer @(hasUnread ? "border-l-4 border-primary" : "")">
+                    <div class="card-body p-4">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-4">
+                                <div class="avatar placeholder">
+                                    <div class="bg-neutral text-neutral-content rounded-full w-12">
+                                        <span class="text-xl">@(otherUser?.FullName?[0] ?? 'U')</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold @(hasUnread ? "text-primary" : "")">@otherUser?.FullName</h3>
+                                    <p class="text-sm text-base-content/70">İlan: @msg.Listing?.Title</p>
+                                    <p class="text-sm mt-1 truncate max-w-lg">@(isMe ? "Siz: " : "")@msg.Content</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-base-content/50">@msg.SentAt.ToString("dd.MM.yyyy HH:mm")</p>
+                                @if (hasUnread)
+                                {
+                                    <span class="badge badge-primary badge-sm mt-1">Yeni Mesaj</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>
